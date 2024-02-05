@@ -3,6 +3,7 @@ package org.example
 import java.io.*
 import java.net.Socket
 import java.util.Scanner
+import java.util.UUID
 
 fun main() {
     try {
@@ -18,12 +19,13 @@ fun main() {
 
 fun sendFile(path: String,client: Socket) {
     try {
+        val saveFolder = "send"
+        val filename = File(path).name
+
         val outputStream = DataOutputStream(client.getOutputStream())
-        val byteContent = File(path).readBytes()
+        val byteContent = File(saveFolder,filename).readBytes()
 
-        outputStream.writeUTF(File(path).name)
-//        outputStream.writeInt(byteContent.size)
-
+        outputStream.writeUTF(renameFileWithUUID(filename))
         outputStream.write(byteContent,0, byteContent.size)
 
         outputStream.close()
@@ -32,4 +34,10 @@ fun sendFile(path: String,client: Socket) {
     } catch (e: Exception){
         e.printStackTrace()
     }
+}
+
+fun renameFileWithUUID(filename: String): String{
+    val name = filename.split(".")
+    val uuidFile = "${name[0]}-${UUID.randomUUID()}.${name[1]}"
+    return uuidFile
 }
